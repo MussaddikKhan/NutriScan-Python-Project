@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Profile - NutriScan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="profile-header">
+                    <h2><i class="fas fa-user-circle me-2"></i>Your Profile</h2>
+                    <p class="mb-0">Update your details for personalized nutrition insights</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" action="/profile">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Weight (kg)</label>
+                                <input type="number" class="form-control" name="weight" value="{{ profile.weight }}" min="30" max="200" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Height (cm)</label>
+                                <input type="number" class="form-control" name="height" value="{{ profile.height }}" min="100" max="250" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Age</label>
+                                <input type="number" class="form-control" name="age" value="{{ profile.age }}" min="10" max="100" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Gender</label>
+                                <select class="form-select" name="gender" required>
+                                    <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Activity Level</label>
+                            <select class="form-select" name="activity_level" required>
+                                <option value="sedentary" {% if profile.activity_level == 'sedentary' %}selected{% endif %}>Sedentary (little or no exercise)</option>
+                                <option value="light" {% if profile.activity_level == 'light' %}selected{% endif %}>Light (exercise 1-3 times/week)</option>
+                                <option value="moderate" {% if profile.activity_level == 'moderate' %}selected{% endif %}>Moderate (exercise 3-5 times/week)</option>
+                                <option value="active" {% if profile.activity_level == 'active' %}selected{% endif %}>Active (exercise 6-7 times/week)</option>
+                                <option value="very_active" {% if profile.activity_level == 'very_active' %}selected{% endif %}>Very Active (hard exercise daily)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Your Goal</label>
+                            <select class="form-select" name="goal" required>
+                                <option value="lose" {% if profile.goal == 'lose' %}selected{% endif %}>Lose Weight</option>
+                                <option value="maintain" {% if profile.goal == 'maintain' %}selected{% endif %}>Maintain Weight</option>
+                                <option value="gain" {% if profile.goal == 'gain' %}selected{% endif %}>Gain Weight</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Save Profile & Get Insights
+                            </button>
+                            <a href="/insights" class="btn btn-outline-secondary">
+                                <i class="fas fa-chart-line me-2"></i>Back to Insights
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Info Card -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-info-circle me-2 text-primary"></i>How This Works</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>We calculate your daily calorie needs using your profile data</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Track your food intake for 7 days</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Get personalized recommendations based on your eating patterns</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Adjust your diet to meet your health goals</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

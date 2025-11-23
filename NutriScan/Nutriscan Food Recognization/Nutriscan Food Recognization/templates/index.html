@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Stats Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card hero-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card-body py-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 fw-bold mb-3">Welcome to NutriScan! 🍎</h1>
+                        <p class="lead mb-4">AI-powered food analysis for smarter nutrition choices. Track your meals, understand your nutrition, and achieve your health goals.</p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/recognize" class="btn btn-light btn-lg">
+                                <i class="fas fa-camera me-2"></i>Analyze Food Now
+                            </a>
+                            <a href="/insights" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-chart-line me-2"></i>View Insights
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number display-6 fw-bold">{{ total_analyses }}</div>
+                                    <div class="stat-label">Total Analyses</div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="stat-number display-6 fw-bold">{{ weekly_scans }}</div>
+                                    <div class="stat-label">This Week</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-number display-6 fw-bold">{{ avg_hygiene }}%</div>
+                                    <div class="stat-label">Avg Hygiene</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-number display-6 fw-bold">{{ avg_calories }}</div>
+                                    <div class="stat-label">Avg Calories</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Grid -->
+<div class="row">
+    <!-- Left Column -->
+    <div class="col-lg-8">
+        <!-- Quick Analysis Card -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2 text-warning"></i>Quick Analysis</h5>
+                <a href="/recognize" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>New Scan
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="{{ demo_img }}" alt="Demo Food" class="rounded shadow" style="max-height: 200px; width: auto;">
+                    <p class="text-muted mt-2">Upload food images like this for instant analysis</p>
+                </div>
+                
+                <!-- Progress Trackers -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Weekly Calories</span>
+                            <span class="text-muted">{{ "%.0f"|format(calorie_progress) }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: {{ calorie_progress }}%"></div>
+                        </div>
+                        <small class="text-muted">Towards weekly goal</small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Weekly Protein</span>
+                            <span class="text-muted">{{ "%.0f"|format(protein_progress) }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {{ protein_progress }}%"></div>
+                        </div>
+                        <small class="text-muted">Towards weekly goal</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Scans -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Recent Scans</h5>
+                <a href="/history" class="btn btn-outline-primary btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_scans %}
+                <div class="row">
+                    {% for scan in recent_scans %}
+                    <div class="col-md-4 mb-3">
+                        <div class="scan-card border rounded p-3 text-center">
+                            <img src="{{ scan.image }}" alt="{{ scan.main_food }}" class="rounded mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                            <h6 class="fw-bold text-capitalize mb-1">{{ scan.main_food }}</h6>
+                            <div class="d-flex justify-content-center gap-2 small">
+                                <span class="badge bg-primary">{{ scan.calories }} cal</span>
+                                <span class="badge bg-{% if scan.hygiene_score >= 70 %}success{% else %}warning{% endif %}">
+                                    {{ scan.hygiene_score }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Scans Yet</h5>
+                    <p class="text-muted">Start by analyzing your first food item!</p>
+                    <a href="/recognize" class="btn btn-primary">
+                        <i class="fas fa-camera me-2"></i>Start Scanning
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- User Profile Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2 text-info"></i>Your Profile</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                         style="width: 60px; height: 60px;">
+                        <i class="fas fa-user text-white fa-2x"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Health Profile</h6>
+                </div>
+                
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="fw-bold text-primary">{{ profile.weight }}kg</div>
+                            <small class="text-muted">Weight</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-primary">{{ profile.height }}cm</div>
+                        <small class="text-muted">Height</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">Goal</small>
+                        <span class="badge bg-{% if profile.goal == 'lose' %}warning{% elif profile.goal == 'gain' %}success{% else %}info{% endif %}">
+                            {{ profile.goal.title() }} Weight
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Daily Calories</small>
+                        <span class="fw-bold text-primary">{{ daily_needs.daily_calories }}</span>
+                    </div>
+                </div>
+                
+                <a href="/profile" class="btn btn-outline-primary w-100 btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Top Foods Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-trophy me-2 text-warning"></i>Most Analyzed Foods</h5>
+            </div>
+            <div class="card-body">
+                {% if top_foods %}
+                <div class="list-group list-group-flush">
+                    {% for food, count in top_foods %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 32px; height: 32px;">
+                                <i class="fas fa-utensils text-muted"></i>
+                            </div>
+                            <span class="fw-bold text-capitalize">{{ food }}</span>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-utensils fa-2x mb-2"></i>
+                    <p class="mb-0">No food data yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-rocket me-2 text-success"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/recognize" class="btn btn-primary">
+                        <i class="fas fa-camera me-2"></i>Scan Food
+                    </a>
+                    <a href="/insights" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-line me-2"></i>Nutrition Insights
+                    </a>
+                    <a href="/history" class="btn btn-outline-secondary">
+                        <i class="fas fa-history me-2"></i>View History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2 text-info"></i>How NutriScan Works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="step-icon bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-camera text-white fa-2x"></i>
+                        </div>
+                        <h5>1. Capture</h5>
+                        <p class="text-muted">Take a clear photo of your food using your camera or upload from gallery</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="step-icon bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-brain text-white fa-2x"></i>
+                        </div>
+                        <h5>2. Analyze</h5>
+                        <p class="text-muted">Our AI identifies food items and estimates nutritional content</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="step-icon bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-chart-pie text-white fa-2x"></i>
+                        </div>
+                        <h5>3. Insights</h5>
+                        <p class="text-muted">Get detailed breakdown of calories, macros, and hygiene scores</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="step-icon bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-trend-up text-white fa-2x"></i>
+                        </div>
+                        <h5>4. Track</h5>
+                        <p class="text-muted">Monitor your nutrition history and get personalized recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.hero-card {
+    border: none;
+    border-radius: 20px;
+}
+
+.stat-card {
+    padding: 15px;
+}
+
+.stat-number {
+    color: rgba(10, 10, 10, 0.178);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.step-icon {
+    transition: transform 0.3s ease;
+}
+
+.step-icon:hover {
+    transform: translateY(-5px);
+}
+
+.scan-card {
+    transition: all 0.3s ease;
+}
+
+.scan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+</style>
+{% endblock %}

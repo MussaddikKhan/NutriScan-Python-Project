@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>NutriScan Report</title>
+
+    <style>
+        /* Full web page display */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            font-size: 14px;
+            line-height: 1.5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        #pdfArea {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            color: rgba(255, 107, 53, 0.08);
+            font-weight: bold;
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 5px;
+        }
+
+        .sub {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .divider {
+            height: 3px;
+            background: #FF6B35;
+            margin: 15px 0 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .left-panel, .right-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Food Image & Info */
+        .food-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .image-box img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .food-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            text-transform: capitalize;
+            color: #333;
+        }
+
+        /* Badges */
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .badge {
+            background: #f5f5f5;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f9f9f9;
+            padding: 15px 10px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Hygiene Score */
+        .hygiene-section {
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .good { color: #27ae60; }
+        .medium { color: #f1c40f; }
+        .bad { color: #e74c3c; }
+
+        /* Pie Chart */
+        .chart-section {
+            margin: 20px 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-box {
+            height: 250px;
+            margin: 0 auto;
+            flex-grow: 1;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #FF6B35;
+            color: #333;
+        }
+
+        /* Hygiene Notes */
+        .hygiene-notes {
+            margin: 0 0 20px 0;
+            padding-left: 20px;
+            flex-grow: 1;
+        }
+
+        .hygiene-notes li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Nutrition Table */
+        .nutrition-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0 20px 0;
+            font-size: 14px;
+            flex-grow: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .nutrition-table th {
+            background: #FF6B35;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .nutrition-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        .nutrition-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .nutrition-table tr:hover {
+            background-color: #fff4ec;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 30px;
+            color: #777;
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        /* PDF Button */
+        .pdf-button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 24px;
+            background: #FF6B35;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .pdf-button:hover {
+            background: #e55a2b;
+        }
+
+        /* Utility Classes */
+        .compact {
+            margin-bottom: 10px;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            #pdfArea {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="pdfArea">
+
+    <!-- Watermark -->
+    <div class="watermark">NutriScan AI</div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="title">NutriScan Report</div>
+        <div class="sub">AI Powered Nutrition Analysis</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <!-- FOOD IMAGE & INFO -->
+            <div class="food-info">
+                <div class="image-box">
+                    <img src="{{ p.image }}" alt="Food Image" id="foodImage">
+                </div>
+                
+                <div class="food-title">{{ p.main_food }}</div>
+                
+                <!-- BADGES -->
+                <div class="badges">
+                    {% for k,v in p.result.items() %}
+                        <span class="badge">{{ k }} — {{ v }}%</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value">{{ p.calories }}</div>
+                    <div class="stat-label">Calories</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-value">{{ p.quantity }}g</div>
+                    <div class="stat-label">Quantity</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {% if p.nutrition %}{{ p.nutrition[0].value }}g{% else %}-{% endif %}
+                    </div>
+                    <div class="stat-label">Protein</div>
+                </div>
+            </div>
+
+            <!-- HYGIENE SCORE -->
+            <div class="hygiene-section">
+                {% if p.hygiene_score >= 70 %}
+                    <span class="good">Hygiene Score: {{ p.hygiene_score }}/100</span>
+                {% elif p.hygiene_score >= 50 %}
+                    <span class="medium">Hygiene Score: {{ p.hygiene_score }}/100</span>
+                {% else %}
+                    <span class="bad">Hygiene Score: {{ p.hygiene_score }}/100</span>
+                {% endif %}
+            </div>
+
+            <!-- PIE CHART -->
+            <div class="chart-section">
+                <div class="section-title">Nutrition Summary</div>
+                <div class="chart-box">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <!-- HYGIENE NOTES -->
+            <div class="section-title">Hygiene Notes</div>
+            <ul class="hygiene-notes">
+                {% for note in p.hygiene_reasons %}
+                    <li>{{ note }}</li>
+                {% endfor %}
+            </ul>
+
+            <!-- NUTRITION TABLE -->
+            <div class="section-title">Nutrition Breakdown</div>
+            <table class="nutrition-table">
+                <thead>
+                    <tr>
+                        <th>Nutrient</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in p.nutrition %}
+                    <tr>
+                        <td>{{ n.name.capitalize() }}</td>
+                        <td>{{ n.value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        Generated by NutriScan • {{ p.timestamp }}
+    </div>
+
+    <!-- PDF Button - Now uses backend generation -->
+    <a href="{{ url_for('pdf_view', item_id=item_id) if item_id is defined else '#' }}" class="pdf-button" id="downloadPdf">
+        Download PDF Report
+    </a>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // PIE CHART DATA from backend (whole_nutrition)
+    const chartData = {{ p.whole_nutrition | tojson }};
+    
+    // Define colors for the pie chart
+    const colors = ["#FF6B35", "#4ECDC4", "#45B7D1", "#FFE66D", "#FF6B6B", "#95E1D3"];
+
+    // Render pie chart
+    window.onload = function () {
+        const ctx = document.getElementById("pieChart");
+
+        // Create a doughnut chart
+        const pieChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: chartData.map(x => x.name),
+                datasets: [{
+                    data: chartData.map(x => x.value),
+                    backgroundColor: colors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 15,
+                            font: {
+                                size: 12
+                            },
+                            padding: 15
+                        }
+                    }
+                },
+                cutout: '50%'
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

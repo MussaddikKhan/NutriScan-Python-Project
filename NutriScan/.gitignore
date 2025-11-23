@@ -1,0 +1,76 @@
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pickle
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Environment files
+.env
+*.env
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Cache
+.cache/
+pip-wheel-metadata/
+*.spec
+
+# -----------------------------
+# Flask / Web Projects
+# -----------------------------
+instance/
+*.db
+*.sqlite3
+
+# Uploaded images & history files
+uploads/
+history.json
+user_profile.json
+
+# Static files (optional: remove if you want to track)
+static/uploads/
+static/temp/
+
+# -----------------------------
+# VS Code
+# -----------------------------
+.vscode/
+.settings/
+
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------
+# Models / ML
+# -----------------------------
+*.h5
+*.pb
+*.pt
+*.onnx
+models/

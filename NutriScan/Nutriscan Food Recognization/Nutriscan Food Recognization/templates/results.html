@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- PDF WRAPPER START -->
+<div id="pdfArea">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Analysis Results</h4>
+                    <div class="d-flex gap-2">
+                        <a href="/recognize" class="btn btn-outline-primary">
+                            <i class="fas fa-redo me-2"></i>Analyze Another
+                        </a>
+
+                        <a href="/pdf/view/{{ item_id }}" target="_blank" class="btn btn-success">
+                            <i class="fas fa-file-pdf me-2"></i>Download PDF
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not pack %}
+    <div class="alert alert-warning">No analysis results available.</div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            {% for p in pack %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+
+                        <div class="col-md-4 mb-3">
+                            <img src="{{ p.image }}" class="preview w-100" style="height: 200px; object-fit: cover;">
+                            <div class="mt-3 text-center">
+                                {% if p.hygiene_score >= 70 %}
+                                <span class="badge badge-good">Hygiene: {{ p.hygiene_score }}/100</span>
+                                {% elif p.hygiene_score >= 50 %}
+                                <span class="badge badge-warning">Hygiene: {{ p.hygiene_score }}/100</span>
+                                {% else %}
+                                <span class="badge badge-bad">Hygiene: {{ p.hygiene_score }}/100</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <h4 class="mb-1 text-capitalize">{{ p.main_food }}</h4>
+                            <p class="text-muted mb-2">
+                                {% for k,v in p.result.items() %}
+                                <span class="badge bg-light text-dark me-1">{{ k }}: {{ v }}%</span>
+                                {% endfor %}
+                            </p>
+
+                            <div class="row mb-3">
+                                <div class="col-4 text-center">
+                                    <div class="border rounded p-2">
+                                        <div class="fw-bold text-primary">{{ p.calories }}</div>
+                                        <small class="text-muted">Calories</small>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="border rounded p-2">
+                                        <div class="fw-bold text-success">{{ p.quantity }}g</div>
+                                        <small class="text-muted">Quantity</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-4 text-center">
+                                    <div class="border rounded p-2">
+                                        {% if p.nutrition and p.nutrition|length > 0 %}
+                                        <div class="fw-bold text-warning">{{ p.nutrition[0].value }}g</div>
+                                        {% else %}
+                                        <div class="fw-bold text-warning">–</div>
+                                        {% endif %}
+                                        <small class="text-muted">Protein</small>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {% if p.hygiene_reasons %}
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Hygiene Notes</h6>
+                                <ul class="mb-0">
+                                    {% for r in p.hygiene_reasons %}
+                                    <li>{{ r }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6>Detailed Nutrition (per {{ p.quantity }}g)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nutrient</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if p.nutrition %}
+                                        {% for n in p.nutrition %}
+                                        <tr>
+                                            <td class="text-capitalize">{{ n.name }}</td>
+                                            <td>{{ n.value }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-muted">No nutrition data available
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Nutrition Summary</h6>
+                    <canvas id="nutritionChart" width="300" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Recommendations</h6>
+                    <ul class="list-unstyled">
+                        {% for rec in recommendations %}
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div> <!-- END PDF WRAPPER -->
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    let data = {{ whole_nutrition| tojson }};
+    const ctx = document.getElementById('nutritionChart')?.getContext('2d');
+
+    if (ctx && data.length > 0) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(x => x.name),
+                datasets: [{
+                    data: data.map(x => x.value),
+                    backgroundColor: ['#FF6B35', '#4ECDC4', '#45B7D1', '#FFE66D', '#FF6B6B']
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+</script>
+
+<!-- PDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+    function downloadPDF() {
+        const element = document.getElementById('pdfArea');
+
+        const opt = {
+            margin: 0.2,
+            filename: 'NutriScan_Report.pdf',
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+
+{% endblock %}

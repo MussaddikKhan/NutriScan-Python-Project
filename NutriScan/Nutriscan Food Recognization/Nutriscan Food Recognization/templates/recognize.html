@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0"><i class="fas fa-camera me-2"></i>Food Recognition</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-4">
+              <h5>Upload Food Images</h5>
+              <p class="text-muted">Upload one food image for analysis</p>
+
+              <form id="analyzeForm" method="POST" action="/analyze" enctype="multipart/form-data" class="mb-4">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Select Image</label>
+                  <input class="form-control" type="file" name="img" accept="image/*" required />
+                  <div class="form-text">Supported formats: JPG, PNG, WebP.</div>
+                </div>
+
+                <button id="analyzeBtn" type="submit" class="btn btn-primary w-100">
+                  <i class="fas fa-bolt me-2"></i>Analyze Image
+                </button>
+              </form>
+            </div>
+
+            <div class="alert alert-info">
+              <h6><i class="fas fa-lightbulb me-2"></i>Pro Tips</h6>
+              <ul class="mb-0">
+                <li>Use good lighting</li>
+                <li>Capture from multiple angles</li>
+                <li>Keep background clean</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h5>Quick Analysis</h5>
+                <p class="text-muted">Demo nutrition estimation</p>
+
+                <form method="GET" action="/predict" class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label fw-bold">Food Quantity</label>
+                    <input class="form-control" type="number" name="quantity" value="100" min="10" max="2000">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-outline-primary w-100">
+                      <i class="fas fa-play me-2"></i>Run Demo Analysis
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+
+<script>
+  document.getElementById("analyzeForm").addEventListener("submit", function (e) {
+    let file = document.querySelector('input[type="file"]').files[0];
+
+    if (!file) {
+      alert("Please select an image first.");
+      e.preventDefault();
+      return;
+    }
+
+    const btn = document.getElementById("analyzeBtn");
+
+    // Prevent UI shift
+    btn.style.minHeight = btn.offsetHeight + "px";
+    btn.disabled = true;
+
+    // Bootstrap spinner prevents UI jump
+    btn.innerHTML =
+      '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
+
+    // Prevent scroll causing sidebar shift
+    document.body.style.overflow = "hidden";
+    setTimeout(() => {
+      document.body.style.overflow = "auto";
+    }, 800);
+  });
+</script>
+
+
+{% endblock %}
