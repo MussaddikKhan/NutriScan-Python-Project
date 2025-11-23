@@ -52,7 +52,5 @@ Upload an image and the system will predict the food item and generate the nutri
 ---
 
 ## Other Important Notes
-- Ensure that the model.h5 file exists in the project folder.
-- Supported image formats: JPG and PNG.
 - Recommended Python version: 3.8 or higher.
 - Clear and well-lit images provide better prediction results.
